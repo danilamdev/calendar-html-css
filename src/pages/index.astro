@@ -15,41 +15,11 @@ import Layout from '../layouts/Layout.astro';
 				<li>sabado</li>
 				<li>domingo</li>
 			</div>
-			<div class="days firstDay-04">
-				<li>1</li>
-				<li>2</li>
-				<li>3</li>
-				<li>4</li>
-				<li>5</li>
-				<li>6</li>
-				<li>7</li>
-				<li>8</li>
-				<li>9</li>
-				<li>10</li>
-				<li>11</li>
-				<li>12</li>
-				<li>13</li>
-				<li>14</li>
-				<li>15</li>
-				<li>16</li>
-				<li>17</li>
-				<li>18</li>
-				<li>19</li>
-				<li>20</li>
-				<li>21</li>
-				<li>22</li>
-				<li>23</li>
-				<li>24</li>
-				<li>25</li>
-				<li>26</li>
-				<li>27</li>
-				<li>28</li>
-				<li>29</li>
-				<li>30</li>
+			<div class="days first">
+				
 			</div>
 		</div>
 
-		<p class="test"></p>
 	</main>
 </Layout>
 
@@ -57,15 +27,6 @@ import Layout from '../layouts/Layout.astro';
 
 const intlW = new Intl.DateTimeFormat('es',{weekday: "short"})
 const intlM = new Intl.DateTimeFormat('es',{month: "long"})
-
-const month = document.querySelector('.monthName')
-const week = document.querySelector('.week')
-const days = document.querySelector('.days')
-const allDays = document.querySelectorAll('.days > li')
-
-const daysarr = [...Array(7).keys()].map(d => {
-	return intlW.format(new Date(2022,7,d + 1)) 
-})
 
 function getMonthNumber() {
 	const month = new Date(Date.now()).getMonth()
@@ -81,27 +42,67 @@ function getTodayNumber() {
 	return new Date(Date.now()).getDate()
 }
 
+function totalDaysofMonth() {
+	return [...Array(12).keys()].map((v, m) => {
+		let nextMonth = m + 1
+		
+		let daysofMonth = new Date(2022, nextMonth, 0).getDate()
+		let month = intlM.format(new Date(2022,m)) 
+		return {daysofMonth, month}
+	})
+}
 
-month.innerHTML = `${intlM.format(new Date(2022,getMonthNumber()))}`
-week.innerHTML = daysarr.reduce((a, v) => {
-	return `${a} <li class="listdays">${v}</li> \n`
-}, '\n')
+function renderDays(){
 
-document.addEventListener('DOMContentLoaded', () => {
+	const month = document.querySelector('.monthName')
+	const week = document.querySelector('.week')
+	const days = document.querySelector('.days')
+
+	const daysArr = [...Array(7).keys()].map(d => {
+		return intlW.format(new Date(2022,7,d + 1)) 
+	})
+	const monthName = intlM.format(new Date(2022, getMonthNumber()))
+	const totalDays = totalDaysofMonth()
+	const {daysofMonth} = totalDays.find( total => total.month === monthName)
+
+	days.innerHTML = [...Array(daysofMonth).keys()].reduce((a, v) => {
+
+		return `${a} <li class="ldays">${v+1}</li>`
+	}, '\n')
+
+	const allDays = document.querySelectorAll('.days > li')
+
+	allDays.forEach(day => {
+		if(parseInt(day.innerHTML)  === getTodayNumber()){
+			day.classList.add('today')
+		}
+	})
+
 	let newClass = `firstDay-0${getFirstDayofMonth()}`
-
+	
 	days.classList.forEach(cl => {
 		if(!cl.startsWith('first')) return
 		days.classList.replace(cl, newClass)
 	})
-	
-})
 
-allDays.forEach(day => {
-	if(parseInt(day.innerHTML)  === getTodayNumber()){
-		day.classList.add('today')
-	}
-})
+	month.innerHTML = `${intlM.format(new Date(2022,getMonthNumber()))}`
+	week.innerHTML = daysArr.reduce((a, v) => {
+		return `${a} <li class="listdays">${v}</li> \n`
+	}, '\n')
+
+	// return daysofMonth
+
+	allDays.forEach( d => {
+		d.addEventListener('click', () => {
+			console.log('click!')
+			allDays.forEach(d => d.classList.remove('active'))
+
+			d.classList.add('active')
+		})
+	})
+}	
+
+renderDays()
 
 </script>
 
@@ -119,17 +120,29 @@ allDays.forEach(day => {
 		list-style: none;
 	}
 
-</style>
-
-<style>
-
-	body {
-		min-height: 100vh;
-		display: grid;
-		place-content: center;
-		background-color: rgb(252, 252, 252);
-		font-family: 'roboto mono';
+	.days > .active {
+		/* background-color: rgba(141, 156, 206, 0.733); */
+		color: rgb(245, 170, 235) ;
+		font-size: 1.2em;
+		box-shadow: 3px 5px 15px rgba(109, 109, 109, 0.116);
 	}
+	.days > .active:hover {
+		color: white ;
+		background-color: rgb(208, 190, 228);
+	}
+
+.ldays {
+	color: rgb(79, 67, 110);
+	display: grid;
+	place-content: center;
+	border-radius: 15%;
+	padding: 30px;
+	cursor: pointer;
+}
+
+.ldays:hover {
+		background-color: rgba(179, 217, 248, 0.11);
+	} 
 
 	.today {
 		border-radius: 50%;
@@ -138,6 +151,29 @@ allDays.forEach(day => {
 		font-size: 1.1em ;
 		color: rgb(138, 90, 248) !important;
 		border-radius: 50% !important;
+	}
+
+	
+	.firstDay-01 > li:first-child{
+		grid-column-start: 1;
+	}
+	.firstDay-02 > li:first-child{
+		grid-column-start: 2;
+	}
+	.firstDay-03 > li:first-child{
+		grid-column-start: 3;
+	}
+	.firstDay-04 > li:first-child{
+		grid-column-start: 4;
+	}
+	.firstDay-05 > li:first-child{
+		grid-column-start: 5;
+	}
+	.firstDay-06 > li:first-child{
+		grid-column-start: 6;
+	}
+	.firstDay-07 > li:first-child{
+		grid-column-start: 7;
 	}
 
 	.monthName {
@@ -182,44 +218,27 @@ allDays.forEach(day => {
 		text-align: center;
 		gap: 15px;
 		height: 400px;
+		list-style: none;
+		
 	}
 
-	.days > li {
-		color: rgb(79, 67, 110);
+
+
+
+</style>
+
+<style>
+
+	body {
+		min-height: 100vh;
 		display: grid;
 		place-content: center;
-		border-radius: 15%;
-		/* box-shadow: 5px 5px 15px rgba(179, 179, 179, 0.062); */
-		/* border: 1px solid red; */
-		padding: 30px;
-		cursor: pointer;
+		background-color: rgb(252, 252, 252);
+		font-family: 'roboto mono';
 	}
 
-	.days > li:hover {
-		background-color: rgba(179, 217, 248, 0.11);
-	}
+	
 
-	.firstDay-01 > li:first-child{
-		grid-column-start: 1;
-	}
-	.firstDay-02 > li:first-child{
-		grid-column-start: 2;
-	}
-	.firstDay-03 > li:first-child{
-		grid-column-start: 3;
-	}
-	.firstDay-04 > li:first-child{
-		grid-column-start: 4;
-	}
-	.firstDay-05 > li:first-child{
-		grid-column-start: 5;
-	}
-	.firstDay-06 > li:first-child{
-		grid-column-start: 6;
-	}
-	.firstDay-07 > li:first-child{
-		grid-column-start: 7;
-	}
-
+	
 
 </style>
